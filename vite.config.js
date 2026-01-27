@@ -12,6 +12,10 @@ export default defineConfig({
         tailwindcss(),
         vue()
     ],
+    build: {
+    outDir: 'assets/dist',
+    rollupOptions: { input: 'resources/js/app.js' }
+  },
     server: {
         watch: {
             ignored: ['**/storage/framework/views/**'],
