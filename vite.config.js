@@ -16,9 +16,9 @@ export default defineConfig({
     outDir: 'assets/dist',
     rollupOptions: { input: 'resources/js/app.js' }
   },
-    server: {
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
-        },
-    },
+server: {
+    origin: 'http://localhost:5173',
+    cors: true,
+    strictPort: true,
+},
 });
