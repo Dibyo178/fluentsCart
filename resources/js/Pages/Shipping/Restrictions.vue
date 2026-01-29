@@ -9,12 +9,12 @@
                     <div>
                         <h1 class="text-2xl font-black text-slate-800">Shipping Zone Setup</h1>
                         <div class="flex items-center gap-3 mt-2">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase">System Mode:</span>
-                            <select v-model="form.mode" class="text-xs font-black bg-slate-100 border-none rounded-lg px-3 py-1.5 outline-none text-indigo-600 uppercase cursor-pointer hover:bg-slate-200 transition-all">
+                            <span class="text-[10px] font-bold text-slate-400 ">System Mode:</span>
+                            <select v-model="form.mode" class="text-xs font-black bg-slate-100 border-none rounded-lg px-3 py-1.5 outline-none text-indigo-600  cursor-pointer hover:bg-slate-200 transition-all">
                                 <option value="" disabled>SELECT METHOD</option>
                                 <option value="global">GLOBAL</option>
                                 <option v-for="method in shippingMethods" :key="method.id" :value="String(method.id)">
-                                    PER METHOD: {{ method.title.toUpperCase() }}
+                                    {{ method.title }}
                                 </option>
                             </select>
                         </div>
@@ -27,14 +27,14 @@
 
             <div class="grid md:grid-cols-2 gap-8 mb-12">
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="bg-emerald-50 border-b border-emerald-100 p-5 font-extrabold text-emerald-900 text-sm uppercase">✓ Allowed Countries</div>
+                    <div class="bg-emerald-50 border-b border-emerald-100 p-5 font-extrabold text-emerald-900 text-sm ">✓ Allowed Countries</div>
                     <div class="p-6">
                         <div class="relative mb-6">
-                            <input v-model="newAllowed" @keyup.enter="add('allowed')" placeholder="ADD ISO (e.g. US)" class="w-full pl-4 pr-12 py-3 bg-slate-50 border-2 rounded-2xl outline-none font-bold uppercase">
+                            <input v-model="newAllowed" @keyup.enter="add('allowed')" placeholder="ADD ISO (e.g. US)" class="w-full pl-4 pr-12 py-3 bg-slate-50 border-2 rounded-2xl outline-none font-bold ">
                             <button @click="add('allowed')" class="absolute right-3 top-2 bg-emerald-500 p-2 rounded-lg text-white">+</button>
                         </div>
                         <div class="flex flex-wrap gap-2">
-                            <div v-for="(c, i) in form.allowed" :key="i" class="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border border-slate-200 font-bold text-xs uppercase shadow-sm">
+                            <div v-for="(c, i) in form.allowed" :key="i" class="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border border-slate-200 font-bold text-xs  shadow-sm">
                                 <span>{{c}}</span>
                                 <button @click="remove('allowed', i)" class="text-rose-500">×</button>
                             </div>
@@ -43,14 +43,14 @@
                 </div>
 
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="bg-rose-50 border-b border-rose-100 p-5 font-extrabold text-rose-900 text-sm uppercase">✕ Excluded Countries</div>
+                    <div class="bg-rose-50 border-b border-rose-100 p-5 font-extrabold text-rose-900 text-sm ">✕ Excluded Countries</div>
                     <div class="p-6">
                         <div class="relative mb-6">
-                            <input v-model="newExcluded" @keyup.enter="add('excluded')" placeholder="ADD ISO (e.g. CA)" class="w-full pl-4 pr-12 py-3 bg-slate-50 border-2 rounded-2xl outline-none font-bold uppercase">
+                            <input v-model="newExcluded" @keyup.enter="add('excluded')" placeholder="ADD ISO (e.g. CA)" class="w-full pl-4 pr-12 py-3 bg-slate-50 border-2 rounded-2xl outline-none font-bold ">
                             <button @click="add('excluded')" class="absolute right-3 top-2 bg-rose-500 p-2 rounded-lg text-white">+</button>
                         </div>
                         <div class="flex flex-wrap gap-2">
-                            <div v-for="(c, i) in form.excluded" :key="i" class="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border border-slate-200 font-bold text-xs uppercase shadow-sm">
+                            <div v-for="(c, i) in form.excluded" :key="i" class="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border border-slate-200 font-bold text-xs  shadow-sm">
                                 <span>{{c}}</span>
                                 <button @click="remove('excluded', i)" class="text-rose-500">×</button>
                             </div>
@@ -68,7 +68,7 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black">
+                        <thead class="bg-slate-50 text-slate-400 text-[10px]  font-black">
                             <tr>
                                 <th class="p-5">Order</th>
                                 <th class="p-5">Country</th>
@@ -84,7 +84,7 @@
                                 <td class="p-5"><span class="bg-slate-900 text-white px-2 py-1 rounded text-[10px] font-bold">{{ log.country }}</span></td>
                                 <td class="p-5 text-[9px] font-bold text-emerald-600">{{ log.allowed }}</td>
                                 <td class="p-5 text-[9px] font-bold text-rose-600">{{ log.excluded }}</td>
-                                <td class="p-5 text-[10px] font-black uppercase">
+                                <td class="p-5 text-[10px] font-black ">
                                     <span :class="log.status.includes('Passed') ? 'text-emerald-500' : 'text-rose-500'">
                                         ● {{ log.status }}
                                     </span>
@@ -127,7 +127,7 @@ const saving = ref(false);
 const add = (type) => {
     let field = type === 'allowed' ? newAllowed : newExcluded;
     let oppositeList = type === 'allowed' ? form.excluded : form.allowed;
-    let val = field.value.toUpperCase().trim();
+    let val = field.value.to().trim();
 
     if (!val) return;
     if (form[type].includes(val)) {
