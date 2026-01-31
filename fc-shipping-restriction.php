@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: FluentCart Shipping Restriction
  */
@@ -7,184 +8,67 @@ namespace FC\Shipping;
 
 if (!defined('ABSPATH')) exit;
 
-$base_path = plugin_dir_path(__FILE__);
-require_once $base_path . 'app/Services/InertiaBridge.php';
-require_once $base_path . 'app/Http/Controllers/ShippingController.php';
+require_once plugin_dir_path(__FILE__) . 'app/Services/InertiaBridge.php';
+require_once plugin_dir_path(__FILE__) . 'app/Http/Controllers/ShippingController.php';
 
 use App\Http\Controllers\ShippingController;
 
-class Plugin {
-
-    public function __construct() {
-        // Admin hooks
-        add_action('admin_menu', [$this, 'add_menu']);
+class Plugin
+{
+    public function __construct()
+    {
+        add_action('admin_menu', [$this, 'add_menu'], 100);
         add_action('admin_enqueue_scripts', [$this, 'load_assets']);
         add_action('wp_ajax_fc_save_shipping_settings', [$this, 'handle_ajax_save']);
+        add_action('wp_ajax_fc_get_method_settings', [$this, 'handle_ajax_get_settings']);
 
-        // FluentCart hooks
+        // Hooks
         add_filter('fluent_cart/validate_checkout_data', [$this, 'secure_server_validation'], 10, 2);
         add_filter('fluent_cart/shipping/available_methods', [$this, 'filter_shipping_methods'], 999, 2);
-        add_action('fluent_cart/before_order_create', [$this, 'prevent_restricted_orders'], 10, 1);
         add_action('fluent_cart/order_created', [$this, 'log_order_restriction'], 20, 1);
-
-        // Frontend hooks
         add_action('wp_footer', [$this, 'inject_checkout_logic'], 999);
-        add_action('wp_footer', [$this, 'enqueue_frontend_debug'], 100);
     }
 
-    // Server-side validation for checkout
-    public function secure_server_validation($errors, $data) {
-        $country = strtoupper(trim($data['billing_address']['country'] ?? ''));
-        $allowed = (array)get_option('fc_allowed_countries', []);
-        $excluded = (array)get_option('fc_excluded_countries', []);
-
-        $is_blocked = in_array($country, $excluded) || (!empty($allowed) && !in_array($country, $allowed));
-
-        if ($is_blocked) {
-            $errors['billing_address.country'] = '🚫 Shipping restricted for this location.';
-        }
-
-        return $errors;
-    }
-
-<<<<<<< Updated upstream
-    // Filter shipping methods
-    public function filter_shipping_methods($methods, $cart) {
+    private function get_active_rules() {
         global $wpdb;
+        $mode = get_option('fc_restriction_mode', 'global');
 
-        $normalize = fn($str) => strtolower(preg_replace('/[^a-z0-9]/', '', $str ?? ''));
-=======
-public function filter_shipping_methods($methods, $cart) {
-    $mode = get_option('fc_restriction_mode', 'global');
-    
-    if ($mode === 'global' || empty($mode)) return $methods;
-
-    // Map based on FluentCart docs: user-selected mode to internal type slugs
-    $mode_map = [
-        'free' => 'free_shipping',
-        'standard' => 'flat_rate',
-        'standered' => 'flat_rate', // Handle typo in selection or title
-        'local' => 'local_pickup',
-        // Add more if your admin has other options, e.g., 'express' => 'express_shipping'
-    ];
-    $search_term = strtolower(trim($mode));
-    $search_term = $mode_map[$search_term] ?? $search_term;
->>>>>>> Stashed changes
-
-        $active_methods = $wpdb->get_results(
-            "SELECT type, title FROM {$wpdb->prefix}fct_shipping_methods WHERE is_enabled = 1",
-            OBJECT_K
-        );
-
-<<<<<<< Updated upstream
-        if (empty($active_methods)) return [];
-
-        $filtered = [];
-        foreach ($methods as $key => $method) {
-            $type = $normalize($method['type'] ?? '');
-            if (isset($active_methods[$type])) {
-                $method['title'] = $active_methods[$type]->title;
-                $filtered[$key] = $method;
-            }
-=======
-    // Enhanced logging for debugging (enable WP_DEBUG_LOG in wp-config.php)
-    error_log('FC Shipping Filter: Mode = ' . $mode . ', Search Term = ' . $search_term);
-    error_log('FC Shipping Filter: Cart Data = ' . json_encode($cart));
-    error_log('FC Shipping Filter: Available Methods = ' . json_encode($methods, JSON_PRETTY_PRINT));
-
-    foreach ($methods as $key => $method) {
-        $m_title = strtolower(trim($method['title'] ?? ''));
-        $m_type = strtolower(trim($method['type'] ?? ''));
-        $m_id = (string)($method['id'] ?? $key);
-
-        // Matching logic: Partial match OR fuzzy (levenshtein <= 2 for typos like 'standered' vs 'standard') OR exact ID
-        $title_distance = levenshtein($m_title, $search_term);
-        $type_distance = levenshtein($m_type, $search_term);
-        if (
-            stripos($m_title, $search_term) !== false ||
-            stripos($m_type, $search_term) !== false ||
-            $m_id === $search_term ||
-            $title_distance <= 2 ||
-            $type_distance <= 2
-        ) {
-            $filtered_methods[$key] = $method;
-            error_log('FC Shipping Filter: Matched Method = ' . json_encode($method));
-        } else {
-            error_log('FC Shipping Filter: Non-Matched Method = ' . json_encode($method));
->>>>>>> Stashed changes
+        if ($mode === 'global' || empty($mode)) {
+            return [
+                'mode'     => 'global',
+                'allowed'  => (array) get_option('fc_allowed_countries', []),
+                'excluded' => (array) get_option('fc_excluded_countries', [])
+            ];
         }
-        return $filtered;
+
+        $method_id = is_numeric($mode) ? (int)$mode : 0;
+        $table = $wpdb->prefix . 'fc_shipping_method_restrictions';
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT allowed_countries, excluded_countries
+             FROM $table
+             WHERE method_id = %d",
+            $method_id
+        ));
+
+        $allowed  = $row ? json_decode($row->allowed_countries, true) ?: [] : [];
+        $excluded = $row ? json_decode($row->excluded_countries, true) ?: [] : [];
+
+        return [
+            'mode'     => $mode,
+            'allowed'  => $allowed,
+            'excluded' => $excluded
+        ];
     }
 
-<<<<<<< Updated upstream
-    // Frontend debug
-    public function enqueue_frontend_debug() {
-        if (!function_exists('is_checkout') || !is_checkout()) return;
-        ?>
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const interval = setInterval(() => {
-                if (typeof fct_checkout !== 'undefined' && Array.isArray(fct_checkout.shipping_methods)) {
-                    clearInterval(interval);
-                    console.log("🟢 Active Shipping Methods:", fct_checkout.shipping_methods);
-                }
-            }, 500);
-        });
-        </script>
-        <?php
-    }
-=======
-    // Strict restriction: Hide all if no matches (change to : $methods if you want fallback)
-    $result = !empty($filtered_methods) ? $filtered_methods : [];
-    error_log('FC Shipping Filter: Final Filtered Methods = ' . json_encode($result));
-    return $result;
-}
->>>>>>> Stashed changes
-
-    // Frontend JS checkout restriction
-    public function inject_checkout_logic() {
-        $allowed = (array)get_option('fc_allowed_countries', []);
-        $excluded = (array)get_option('fc_excluded_countries', []);
-        ?>
-        <script>
-        (function() {
-            const rules = { allowed: <?php echo json_encode($allowed); ?>, excluded: <?php echo json_encode($excluded); ?> };
-            function runValidation() {
-                const countryEl = document.querySelector('select[name*="country"], .fc_country_select, #billing_country');
-                const btn = document.querySelector('.fct-checkout-submit, #place_order, .fc_place_order, button[type="submit"]');
-                if (!countryEl || !btn) return;
-
-                const messageId = 'fc-restriction-msg';
-                const country = countryEl.value.toUpperCase();
-                let isBlocked = rules.excluded.includes(country) || (rules.allowed.length && !rules.allowed.includes(country));
-                let msgDiv = document.getElementById(messageId);
-
-                if (isBlocked) {
-                    if (!msgDiv) {
-                        msgDiv = document.createElement('div');
-                        msgDiv.id = messageId;
-                        btn.parentNode.insertBefore(msgDiv, btn);
-                    }
-                    let displayMsg = rules.excluded.includes(country)
-                        ? `🚫 We do not ship to ${country}. This country is excluded.`
-                        : `⚠️ This country (${country}) is not allowed for shipping.`;
-                    msgDiv.innerHTML = `<div style="background:#000;color:#fff;padding:15px;border-radius:10px;margin-bottom:15px;text-align:center;font-weight:bold;border:2px solid #ef4444;">${displayMsg}</div>`;
-                    btn.disabled = true; btn.style.opacity='0.4'; btn.style.pointerEvents='none';
-                } else {
-                    if (msgDiv) msgDiv.remove();
-                    btn.disabled = false; btn.style.opacity='1'; btn.style.pointerEvents='auto';
-                }
-            }
-            document.addEventListener('change', runValidation);
-            setInterval(runValidation, 1500);
-        })();
-        </script>
-        <?php
-    }
-
-    // Admin menu
     public function add_menu() {
-        add_menu_page('Shipping Rules', 'FC Shipping', 'manage_options', 'fc-shipping-restrictions', [$this, 'render_page'], 'dashicons-admin-site', 56);
+        add_submenu_page(
+            'fluent-cart',
+            'Shipping Rules',
+            'FC Shipping',
+            'manage_options',
+            'fc-shipping-restrictions',
+            [$this, 'render_page']
+        );
     }
 
     public function render_page() {
@@ -192,87 +76,175 @@ public function filter_shipping_methods($methods, $cart) {
         echo $controller->index();
     }
 
-    // Load admin assets
     public function load_assets($hook) {
         if (strpos($hook, 'fc-shipping-restrictions') === false) return;
+
         wp_enqueue_script('fc-js', 'http://localhost:5173/resources/js/app.js', [], null, true);
-        add_filter('script_loader_tag', function($tag, $handle) {
+
+        add_filter('script_loader_tag', function ($tag, $handle) {
             if ($handle === 'fc-js') return str_replace('<script ', '<script type="module" ', $tag);
             return $tag;
         }, 10, 2);
     }
 
-    // AJAX save
     public function handle_ajax_save() {
         global $wpdb;
         check_ajax_referer('fc_shipping_nonce', 'nonce');
 
-        $mode = sanitize_text_field($_POST['mode']);
-        $allowed = json_decode(stripslashes($_POST['allowed']), true);
-        $excluded = json_decode(stripslashes($_POST['excluded']), true);
+        $mode     = sanitize_text_field($_POST['mode'] ?? '');
+        $allowed  = json_decode(stripslashes($_POST['allowed'] ?? '[]'), true);
+        $excluded = json_decode(stripslashes($_POST['excluded'] ?? '[]'), true);
 
-        update_option('fc_allowed_countries', $allowed);
-        update_option('fc_excluded_countries', $excluded);
-        update_option('fc_restriction_mode', $mode);
-
-        $table = $wpdb->prefix . 'fct_shipping_methods';
+        $allowed  = is_array($allowed) ? array_values(array_unique($allowed)) : [];
+        $excluded = is_array($excluded) ? array_values(array_unique($excluded)) : [];
 
         if ($mode === 'global') {
-            $wpdb->query("UPDATE {$table} SET is_enabled = 1");
+            update_option('fc_restriction_mode', 'global');
+            update_option('fc_allowed_countries', $allowed);
+            update_option('fc_excluded_countries', $excluded);
+            wp_send_json_success(['mode' => 'global']);
+            return;
+        }
+
+        $method_id = (int) $mode;
+        $table = $wpdb->prefix . 'fc_shipping_method_restrictions';
+        $exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM $table WHERE method_id=%d", $method_id));
+
+        $data = [
+            'method_id' => $method_id,
+            'allowed_countries' => wp_json_encode($allowed),
+            'excluded_countries'=> wp_json_encode($excluded),
+            'updated_at' => current_time('mysql')
+        ];
+
+        if ($exists) {
+            $wpdb->update($table, $data, ['id' => $exists]);
         } else {
-            $method_id = intval($mode);
-            $wpdb->query("UPDATE {$table} SET is_enabled = 0");
-            $wpdb->update($table, ['is_enabled'=>1], ['id'=>$method_id], ['%d'], ['%d']);
+            $data['created_at'] = current_time('mysql');
+            $wpdb->insert($table, $data);
         }
 
-        wp_send_json_success(['message' => 'Shipping settings saved successfully.']);
+        update_option('fc_restriction_mode', $method_id);
+        wp_send_json_success(['mode' => $method_id]);
     }
 
-    // Backend: prevent order creation for restricted countries
-    public function prevent_restricted_orders($orderData) {
-        $order = $orderData['order'] ?? null;
-        if (!$order) return;
+    public function handle_ajax_get_settings() {
+        global $wpdb;
+        $mode = sanitize_text_field($_GET['mode'] ?? '');
 
-        $country = strtoupper(trim($order->billing_address['country'] ?? ''));
-        $allowed = (array)get_option('fc_allowed_countries', []);
-        $excluded = (array)get_option('fc_excluded_countries', []);
-
-        $blocked = in_array($country, $excluded) || (!empty($allowed) && !in_array($country, $allowed));
-
-        if ($blocked) {
-            wp_die('🚫 Shipping restricted for this country.', 'Order Blocked', ['response'=>403]);
+        if ($mode === 'global') {
+            wp_send_json_success([
+                'data' => [
+                    'allowed'  => (array) get_option('fc_allowed_countries', []),
+                    'excluded' => (array) get_option('fc_excluded_countries', [])
+                ]
+            ]);
+            return;
         }
+
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT allowed_countries, excluded_countries
+             FROM {$wpdb->prefix}fc_shipping_method_restrictions
+             WHERE method_id = %d",
+            (int) $mode
+        ), ARRAY_A);
+
+        wp_send_json_success([
+            'data' => [
+                'allowed'  => $row ? json_decode($row['allowed_countries'], true) : [],
+                'excluded' => $row ? json_decode($row['excluded_countries'], true) : []
+            ]
+        ]);
     }
 
-    // Backend: log order restrictions
+    public function inject_checkout_logic() {
+        $rules = $this->get_active_rules();
+        ?>
+        <script>
+        (function () {
+            const rules = <?php echo json_encode($rules); ?>;
+            function getButton() {
+                return document.querySelector('button[type="submit"], #place_order, .fct-checkout-submit');
+            }
+
+            function runValidation() {
+                const countryEl = document.querySelector('select[name="billing_country"]');
+                const btn = getButton();
+                if (!countryEl || !btn || !countryEl.value) return;
+
+                const country = countryEl.value.toUpperCase().trim();
+                const blocked = rules.excluded.includes(country) || (rules.allowed.length > 0 && !rules.allowed.includes(country));
+
+                let msgDiv = document.getElementById('fc-restriction-msg');
+
+                if (blocked) {
+                    if (!msgDiv) {
+                        msgDiv = document.createElement('div');
+                        msgDiv.id = 'fc-restriction-msg';
+                        msgDiv.style.cssText = 'background:#111;color:#ff4d4d;padding:14px;border-radius:6px;margin:12px 0;text-align:center;font-weight:600;';
+                        btn.before(msgDiv);
+                    }
+                    msgDiv.innerHTML = rules.excluded.includes(country) 
+                        ? `🚫 We do not ship to ${country}.` 
+                        : `⚠️ Shipping to ${country} is not allowed.`;
+
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.pointerEvents = 'none';
+                } else {
+                    if (msgDiv) msgDiv.remove();
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                }
+            }
+
+            setInterval(runValidation, 800);
+            document.addEventListener('change', runValidation);
+        })();
+        </script>
+        <?php
+    }
+
     public function log_order_restriction($data) {
         global $wpdb;
-        $order = $data['order'] ?? null;
-        if (!$order) return;
-
-        $order_id = intval($order->id);
+        if (!isset($data['order'])) return;
+        $order = $data['order'];
+        $rules = $this->get_active_rules();
         $country = strtoupper(trim($order->billing_address['country'] ?? ''));
-        $allowed = (array)get_option('fc_allowed_countries', []);
-        $excluded = (array)get_option('fc_excluded_countries', []);
-        $mode = get_option('fc_restriction_mode', '');
 
         $status = 'Passed';
-        if (in_array($country, $excluded)) $status='Flagged: Excluded';
-        elseif (!empty($allowed) && !in_array($country, $allowed)) $status='Flagged: Unauthorized';
+        if (in_array($country, $rules['excluded'])) $status = 'Flagged: Excluded';
+        elseif (!empty($rules['allowed']) && !in_array($country, $rules['allowed'])) $status = 'Flagged: Unauthorized';
 
-        $wpdb->insert($wpdb->prefix.'fct_order_meta', [
-            'order_id'=>$order_id,
-            'meta_key'=>'_fc_shipping_restrictions',
-            'meta_value'=>json_encode([
-                'order_country'=>$country,
-                'validation_status'=>$status,
-                'applied_method_name'=>is_numeric($mode)?'Method ID: '.$mode: strtoupper($mode),
-                'allowed_countries'=>$allowed,
-                'excluded_countries'=>$excluded
+        $wpdb->insert($wpdb->prefix . 'fct_order_meta', [
+            'order_id'   => $order->id,
+            'meta_key'   => '_fc_shipping_restrictions',
+            'meta_value' => json_encode([
+                'order_country' => $country,
+                'validation_status' => $status,
+                'mode' => $rules['mode']
             ]),
-            'created_at'=>current_time('mysql'),
-            'updated_at'=>current_time('mysql')
+            'created_at' => current_time('mysql'),
+            'updated_at' => current_time('mysql')
         ]);
+    }
+
+    public function filter_shipping_methods($methods, $cart) {
+        global $wpdb;
+        $active_methods = $wpdb->get_col("SELECT type FROM {$wpdb->prefix}fct_shipping_methods WHERE is_enabled=1");
+        return array_filter($methods, fn($m) => in_array(strtolower($m['type']), array_map('strtolower', $active_methods)));
+    }
+
+    public function secure_server_validation($errors, $data) {
+        $country = strtoupper(trim($data['billing_address']['country'] ?? ''));
+        $rules = $this->get_active_rules();
+        $is_blocked = in_array($country, $rules['excluded']) || (!empty($rules['allowed']) && !in_array($country, $rules['allowed']));
+
+        if ($is_blocked) {
+            $errors['billing_address.country'] = '🚫 Shipping restricted for this location.';
+        }
+        return $errors;
     }
 }
 
