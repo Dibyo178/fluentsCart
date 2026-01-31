@@ -47,17 +47,36 @@ class Plugin {
         return $errors;
     }
 
+<<<<<<< Updated upstream
     // Filter shipping methods
     public function filter_shipping_methods($methods, $cart) {
         global $wpdb;
 
         $normalize = fn($str) => strtolower(preg_replace('/[^a-z0-9]/', '', $str ?? ''));
+=======
+public function filter_shipping_methods($methods, $cart) {
+    $mode = get_option('fc_restriction_mode', 'global');
+    
+    if ($mode === 'global' || empty($mode)) return $methods;
+
+    // Map based on FluentCart docs: user-selected mode to internal type slugs
+    $mode_map = [
+        'free' => 'free_shipping',
+        'standard' => 'flat_rate',
+        'standered' => 'flat_rate', // Handle typo in selection or title
+        'local' => 'local_pickup',
+        // Add more if your admin has other options, e.g., 'express' => 'express_shipping'
+    ];
+    $search_term = strtolower(trim($mode));
+    $search_term = $mode_map[$search_term] ?? $search_term;
+>>>>>>> Stashed changes
 
         $active_methods = $wpdb->get_results(
             "SELECT type, title FROM {$wpdb->prefix}fct_shipping_methods WHERE is_enabled = 1",
             OBJECT_K
         );
 
+<<<<<<< Updated upstream
         if (empty($active_methods)) return [];
 
         $filtered = [];
@@ -67,10 +86,37 @@ class Plugin {
                 $method['title'] = $active_methods[$type]->title;
                 $filtered[$key] = $method;
             }
+=======
+    // Enhanced logging for debugging (enable WP_DEBUG_LOG in wp-config.php)
+    error_log('FC Shipping Filter: Mode = ' . $mode . ', Search Term = ' . $search_term);
+    error_log('FC Shipping Filter: Cart Data = ' . json_encode($cart));
+    error_log('FC Shipping Filter: Available Methods = ' . json_encode($methods, JSON_PRETTY_PRINT));
+
+    foreach ($methods as $key => $method) {
+        $m_title = strtolower(trim($method['title'] ?? ''));
+        $m_type = strtolower(trim($method['type'] ?? ''));
+        $m_id = (string)($method['id'] ?? $key);
+
+        // Matching logic: Partial match OR fuzzy (levenshtein <= 2 for typos like 'standered' vs 'standard') OR exact ID
+        $title_distance = levenshtein($m_title, $search_term);
+        $type_distance = levenshtein($m_type, $search_term);
+        if (
+            stripos($m_title, $search_term) !== false ||
+            stripos($m_type, $search_term) !== false ||
+            $m_id === $search_term ||
+            $title_distance <= 2 ||
+            $type_distance <= 2
+        ) {
+            $filtered_methods[$key] = $method;
+            error_log('FC Shipping Filter: Matched Method = ' . json_encode($method));
+        } else {
+            error_log('FC Shipping Filter: Non-Matched Method = ' . json_encode($method));
+>>>>>>> Stashed changes
         }
         return $filtered;
     }
 
+<<<<<<< Updated upstream
     // Frontend debug
     public function enqueue_frontend_debug() {
         if (!function_exists('is_checkout') || !is_checkout()) return;
@@ -87,6 +133,13 @@ class Plugin {
         </script>
         <?php
     }
+=======
+    // Strict restriction: Hide all if no matches (change to : $methods if you want fallback)
+    $result = !empty($filtered_methods) ? $filtered_methods : [];
+    error_log('FC Shipping Filter: Final Filtered Methods = ' . json_encode($result));
+    return $result;
+}
+>>>>>>> Stashed changes
 
     // Frontend JS checkout restriction
     public function inject_checkout_logic() {
