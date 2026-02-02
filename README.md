@@ -97,7 +97,7 @@ The admin panel is powered by **Vue.js + Inertia.js**, providing a clean and mod
 ### 1.Download the Plugin: Clone this repository or download the ZIP
 
 ```bash
-git clone [https://github.com/yourusername/fluentcart-shipping-restriction.git ](https://github.com/Dibyo178/fluentsCart)
+git clone https://github.com/Dibyo178/fluentsCart
 ```
 ### 2.Upload to WordPress
 
