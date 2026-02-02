@@ -8,6 +8,8 @@ A modern, secure shipping restriction plugin for **FluentCart**, built with **La
 
 ## Overview
 
+![Shipping Icon](https://i.ibb.co.com/PsyTzD3x/Capture.png) 
+
 **FluentCart Shipping Restriction** is a WordPress plugin that integrates deeply with **FluentCart** to control shipping availability based on customer country.
 
 Administrators can define **allowed** and **excluded** countries globally or per shipping method.  
