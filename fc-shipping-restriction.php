@@ -2,6 +2,9 @@
 
 /**
  * Plugin Name: FluentCart Shipping Restriction
+ * Description: Restrict shipping by country/method with professional Vue.js UI and high-accuracy Excel reporting.
+ * Version: 1.1.0
+ * Author: Sourov Purkayastha
  */
 
 namespace FC\Shipping;
