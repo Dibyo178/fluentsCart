@@ -327,36 +327,7 @@ public function log_order_restriction($data) {
     }
 }
 
-/**
- * Extract billing country from FluentCart order object/array
- */
-private function extract_billing_country($order) {
-    if (is_object($order)) {
-        // FluentCart Order Object
-        if (method_exists($order, 'get_billing_country')) {
-            return strtoupper(trim($order->get_billing_country() ?? ''));
-        }
-        if (!empty($order->billing_address['country'])) {
-            return strtoupper(trim($order->billing_address['country']));
-        }
-        if (method_exists($order, 'get_meta')) {
-            return strtoupper(trim(
-                $order->get_meta('_billing_country') ?:
-                $order->get_meta('billing_country')
-            ));
-        }
-    }
 
-    if (is_array($order)) {
-        return strtoupper(trim(
-            $order['billing_address']['country'] ??
-            $order['billing_country'] ??
-            $order['_billing_country'] ?? ''
-        ));
-    }
-
-    return '';
-}
     public function filter_shipping_methods($methods, $cart) {
         global $wpdb;
         $active_methods = $wpdb->get_col("SELECT type FROM {$wpdb->prefix}fct_shipping_methods WHERE is_enabled=1");

@@ -73,7 +73,7 @@ return InertiaBridge::render('Shipping/Restrictions', [
     'excluded' => (array) $excluded,
     'mode' => $current_mode,
     'shippingMethods' => $shipping_methods,
-    'logs' => $formatted_logs,  // Now has 'method' instead of 'country'
+    'logs' => $formatted_logs, 
     'ajax_url' => admin_url('admin-ajax.php'),
     'nonce' => wp_create_nonce('fc_shipping_nonce')
 ]);
