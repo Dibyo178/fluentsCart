@@ -233,20 +233,20 @@ public function inject_checkout_logic() {
                 }
                 msgDiv.innerHTML = isExcluded ? `🚫 We do not ship to ${country}.` : `⚠️ Shipping to ${country} is not allowed.`;
 
-                // বাটন লক করা
+                // button lock
                 btn.disabled = true;
                 btn.style.setProperty('opacity', '0.5', 'important');
                 btn.style.setProperty('pointer-events', 'none', 'important');
             } else {
                 if (msgDiv) msgDiv.remove();
-                // বাটন আনলক করা
+                // button unlock
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.style.pointerEvents = 'auto';
             }
         }
 
-        // ইভেন্ট লিসেনার এবং সেফটি ইন্টারভাল
+    
         document.addEventListener('change', (e) => {
             if (e.target.name === 'billing_country' || e.target.name === 'shipping_country') runValidation();
         });
