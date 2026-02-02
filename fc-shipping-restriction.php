@@ -16,7 +16,7 @@ use App\Http\Controllers\ShippingController;
 class Plugin
 {
 
-  private $is_dev_mode = true;
+  private $is_dev_mode =false;
     public function __construct()
     {
         add_action('admin_menu', [$this, 'add_menu'], 100);
