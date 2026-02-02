@@ -109,12 +109,37 @@ git clone https://github.com/Dibyo178/fluentsCart
  - Go to WordPress Admin > Plugins.
  - Find "FluentCart Shipping Restriction" and activate it.
    
- ### 3.Activate the Plugin:
+ ### 4.Activate the Plugin:
 
  - Go to WordPress Admin > Plugins.
  - Find "FluentCart Shipping Restriction" and activate it.
 
-  ### 4.Database Tables:
+ ### 4. .env and app key generate :
+
+```env
+
+       copy .env.example .env
+
+ ```
+```key
+
+     php artisan key:generate
+
+ ```
+
+and update database connection 
+ ```
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your database name
+DB_USERNAME=root/ your username
+DB_PASSWORD= your password have use it otherwise blank
+
+ ```
+
+ ### 5.Database Tables:
 
   
 3. Select the database and create required tables:
