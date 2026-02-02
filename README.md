@@ -1,59 +1,198 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+![Shipping Icon](https://sourovdev.space/logo-full.svg) 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+ # FluentCart Shipping Restriction Plugin
 
-## About Laravel
+A modern, secure shipping restriction plugin for **FluentCart**, built with **Laravel-style architecture**, **Inertia.js**, and **Vue.js**, fully compatible with **PHP 8.2**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**FluentCart Shipping Restriction** is a WordPress plugin that integrates deeply with **FluentCart** to control shipping availability based on customer country.
 
-## Learning Laravel
+Administrators can define **allowed** and **excluded** countries globally or per shipping method.  
+Restrictions are enforced on both the **frontend** (real-time UI feedback) and **backend** (server-side validation), making the system fully **bypass-proof**.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+The admin panel is powered by **Vue.js + Inertia.js**, providing a clean and modern user experience similar to Laravel applications.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Laravel Sponsors
+## Key Goals
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Prevent shipping to restricted countries
+- Support global and per-method shipping rules
+- Enforce rules securely via FluentCart backend hooks
+- Provide a modern admin UI with logs and export support
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Features
 
-## Contributing
+### 🌍 Country-Based Restrictions
+- Define allowed and excluded countries using ISO codes (`US`, `CA`, `DE`)
+- Comma-separated and sanitized input
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 🔁 Global or Per-Method Modes
+- Apply rules globally (all shipping methods)
+- Apply rules to specific FluentCart shipping methods
 
-## Code of Conduct
+### 🖥 Frontend Validation
+- Real-time checkout warnings
+- Automatically disables the **Place Order** button
+- Clear user-facing messages (e.g. *We do not ship to this country*)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 🛑 Backend Enforcement
+- Uses FluentCart validation hooks
+- Prevents API-based or direct checkout bypass
+- Server-side country verification before order creation
 
-## Security Vulnerabilities
+### 🧾 Order Logging
+- Logs applied rules (mode, allowed, excluded)
+- Stored in FluentCart order metadata
+- Useful for debugging and audits
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### ⚙️ Admin UI (Laravel-style)
+- Built with **Vue.js + Inertia.js**
+- SPA-like experience inside WordPress admin
+- CSV export support for logs
 
-## License
+### 🧪 Dev & Production Ready
+- Vite-powered local development
+- Optimized production build assets
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 🔐 Security
+- WordPress nonces
+- Data sanitization
+- Prepared database queries
+
+---
+
+## 📦 Tech Stack
+
+- PHP **8.2**
+- WordPress
+- FluentCart
+- Laravel-style architecture
+- Inertia.js
+- Vue.js
+- Tailwind CSS
+- Vite
+
+---
+
+## Requirements
+
+- WordPress **5.0+** (tested up to latest)
+- FluentCart (active and configured)
+- PHP **8.2+**
+- MySQL / MariaDB
+
+**For development**
+- Node.js
+- Vite
+
+---
+
+## Installation
+
+### 1.Download the Plugin: Clone this repository or download the ZIP
+
+```bash
+git clone https://github.com/yourusername/fluentcart-shipping-restriction.git 
+```
+### 2.Upload to WordPress
+
+ - Navigate to your WordPress site's wp-content/plugins/ directory.
+ - Copy the plugin folder (fluentcart-shipping-restriction) there.
+
+ ### 3.Activate the Plugin:
+
+ - Go to WordPress Admin > Plugins.
+ - Find "FluentCart Shipping Restriction" and activate it.
+   
+ ### 3.Activate the Plugin:
+
+ - Go to WordPress Admin > Plugins.
+ - Find "FluentCart Shipping Restriction" and activate it.
+
+  ### 4.Database Tables:
+
+  
+3. Select the database and create required tables:
+
+```sql
+CREATE TABLE IF NOT EXISTS wp_fc_shipping_method_restrictions (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  method_id BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0 = Global Rule',
+  allowed_countries TEXT NULL,
+  excluded_countries TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY method_unique (method_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+```
+Example Default Insert (Global Rule)
+
+```sql
+INSERT INTO wp_fc_shipping_method_restrictions
+(method_id, allowed_countries, excluded_countries)
+VALUES
+(0, 'US,CA,DE', 'BD,PK');
+
+
+```
+
+ ### 4.Build Assets (for Development):
+
+  - Navigate to the plugin's resources/ directory (assuming Vue source there).
+  - Run:
+ 
+```
+npm install
+npm run dev  # For local dev
+npm run build  # For production
+
+
+```
+## Usage
+Admin Settings:
+- Go to FluentCart > FC Shipping (submenu).
+- Select mode: "GLOBAL" or a specific shipping method from the dropdown.
+- Add ISO codes to Allowed/Excluded lists (e.g., "US", "CA").
+- Save changes. Rules are applied immediately.
+
+## Checkout Experience
+Admin Settings:
+-  On the checkout page, if a restricted country is selected:
+-  A warning message appears (e.g., "🚫 We do not ship to CA.").
+-  Submit button is disabled.
+-  Server-side: Invalid checkouts are blocked with an error.
+
+## Logs
+Custom Tables:
+- Uses FluentCart's wp_fct_order_meta for logs.
+ 
+## Hooks Used:
+
+- fluent_cart/validate_checkout_data: Backend validation.
+- fluent_cart/shipping/available_methods: Filter methods.
+- fluent_cart/order_created: Log restrictions.
+
+## Options: 
+
+- fc_restriction_mode: Stores current mode (global or method ID).
+
+## Development Mode: 
+
+-  Set $is_dev_mode = true; in the plugin file to load from Vite server (e.g., localhost:5173).
+  
+
+## 👨‍💻 Author
+
+**Sourov Purkayastha**
+🌐 [sourovdev.space](https://sourovdev.space/)
+
+
+
+
