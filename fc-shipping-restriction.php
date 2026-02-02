@@ -19,12 +19,13 @@ class Plugin
   private $is_dev_mode = true;
     public function __construct()
     {
+         // actions  Hooks
         add_action('admin_menu', [$this, 'add_menu'], 100);
         add_action('admin_enqueue_scripts', [$this, 'load_assets']);
         add_action('wp_ajax_fc_save_shipping_settings', [$this, 'handle_ajax_save']);
         add_action('wp_ajax_fc_get_method_settings', [$this, 'handle_ajax_get_settings']);
 
-        // Hooks
+        // filters Hooks
         add_filter('fluent_cart/validate_checkout_data', [$this, 'secure_server_validation'], 10, 2);
         add_filter('fluent_cart/shipping/available_methods', [$this, 'filter_shipping_methods'], 999, 2);
         add_action('fluent_cart/order_created', [$this, 'log_order_restriction'], 20, 1);
