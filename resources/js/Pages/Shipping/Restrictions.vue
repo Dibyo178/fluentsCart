@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+           <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                     <h2 class="text-lg font-bold text-slate-800">Applied Restriction Logs</h2>
                     <button @click="exportToExcel" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2">
@@ -75,28 +75,30 @@
                         <thead class="bg-slate-50 text-slate-400 text-[10px] font-black">
                             <tr>
                                 <th class="p-5">Order</th>
-                                <th class="p-5">Country</th>
+                                <th class="p-5">Method</th>
                                 <th class="p-5">Allowed Rules</th>
                                 <th class="p-5">Excluded Rules</th>
-                                <th class="p-5">Status</th>
                                 <th class="p-5">Date</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <tr v-for="log in logs" :key="log.id" class="hover:bg-slate-50 transition-colors">
                                 <td class="p-5 font-bold text-indigo-600">#{{ log.id }}</td>
-                                <td class="p-5"><span class="bg-slate-900 text-white px-2 py-1 rounded text-[10px] font-bold">{{ log.country }}</span></td>
+                                <td class="p-5">
+                                    <span class="bg-slate-900 text-white px-2 py-1 rounded text-[10px] font-bold">
+                                        {{ log.method }}
+                                    </span>
+                                </td>
                                 <td class="p-5 text-[9px] font-bold text-emerald-600">{{ log.allowed }}</td>
                                 <td class="p-5 text-[9px] font-bold text-rose-600">{{ log.excluded }}</td>
-                                <td class="p-5 text-[10px] font-black ">
-                                    <span :class="log.status.includes('Passed') ? 'text-emerald-500' : 'text-rose-500'">● {{ log.status }}</span>
-                                </td>
-                                <td class="p-5 text-slate-300 text-xs">{{ log.date }}</td>
+                                <td class="p-5 text-slate-400 text-xs">{{ log.date }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+
         </div>
     </div>
 </template>
@@ -122,18 +124,17 @@ const form = reactive({
     excluded: []
 });
 
-// ✅ পেজ লোড হওয়া মাত্র ডেটা ইনজেক্ট করা
+
 onMounted(() => {
-    form.allowed = Array.isArray(props.allowed) ? [...props.allowed] : [];
-    form.excluded = Array.isArray(props.excluded) ? [...props.excluded] : [];
-    console.log('✅ Initial Data Loaded:', form.allowed, form.excluded);
+
+    fetchMethodSettings(form.mode);  // Fetch initial data on mount
 });
 
 const newAllowed = ref('');
 const newExcluded = ref('');
 const saving = ref(false);
 
-// ✅ মোড চেঞ্জ করলে ডেটা ফেচ করার ফাংশন
+// Data fetch function when changing mode
 const fetchMethodSettings = async (selectedMode) => {
     if (!selectedMode) return;
 
@@ -148,13 +149,12 @@ const fetchMethodSettings = async (selectedMode) => {
 
         console.log('[FC FETCH DATA]', selectedMode, res.data);
 
-        // ✅ এখানে ডাবল 'data.data' চেক করতে হবে আপনার API রেসপন্স অনুযায়ী
         const responseData = res.data?.data?.data ? res.data.data.data : (res.data?.data || {});
 
         if (res.data?.success) {
             form.allowed = Array.isArray(responseData.allowed) ? responseData.allowed : [];
             form.excluded = Array.isArray(responseData.excluded) ? responseData.excluded : [];
-            console.log('✅ UI updated with:', form.allowed);
+            console.log('UI updated with:', form.allowed);
         } else {
             form.allowed = [];
             form.excluded = [];
@@ -164,9 +164,9 @@ const fetchMethodSettings = async (selectedMode) => {
     }
 };
 
-// ✅ ড্রপডাউন চেঞ্জ ডিটেক্ট করা (সিম্পল ওয়াচ)
+// Dropdown Change Detection (Simple Watch)
 watch(() => form.mode, (newMode) => {
-    console.log('🔄 Mode Changed to:', newMode);
+    console.log('Mode Changed to:', newMode);
     fetchMethodSettings(newMode);
 });
 
@@ -211,6 +211,8 @@ const saveSettings = async () => {
         const res = await axios.post(props.ajax_url, data);
         if (res.data?.success) {
             Swal.fire({ icon: 'success', title: 'Saved!', timer: 1200, showConfirmButton: false });
+            // Optionally refetch after save to sync
+            fetchMethodSettings(form.mode);
         }
     } catch (e) {
         Swal.fire('Error', 'Save failed', 'error');
@@ -220,9 +222,12 @@ const saveSettings = async () => {
 };
 
 const exportToExcel = () => {
-    let csv = "\uFEFFORDER,COUNTRY,ALLOWED,EXCLUDED,STATUS,DATE\r\n";
+    let csv = "\uFEFFORDER,METHOD,ALLOWED,EXCLUDED,DATE,TIME\r\n";
     props.logs.forEach(log => {
-        csv += `"#${log.id}","${log.country}","${log.allowed}","${log.excluded}","${log.status}","${log.date}"\r\n`;
+        // Split datetime into date and time (assuming format 'YYYY-MM-DD HH:MM:SS')
+        const [datePart, timePart] = log.date ? log.date.split(' ') : ['', ''];
+        // No quotes around DATE and TIME to allow Excel to recognize as date/time
+        csv += `"#${log.id}","${log.method}","${log.allowed}","${log.excluded}",${datePart},${timePart}\r\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -231,4 +236,3 @@ const exportToExcel = () => {
     link.click();
 };
 </script>
-
