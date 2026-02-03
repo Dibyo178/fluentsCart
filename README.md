@@ -121,7 +121,7 @@ git clone https://github.com/Dibyo178/fluentsCart
  - Go to WordPress Admin > Plugins.
  - Find "FluentCart Shipping Restriction" and activate it.
 
- ### 4. .env and app key generate :
+ ### 5. .env and app key generate :
 
 ```env
 
@@ -146,10 +146,10 @@ DB_PASSWORD= your password have use it otherwise blank
 
  ```
 
- ### 5.Database Tables:
+ ### 6.Database Tables:
 
   
-3. Select the database and create required tables:
+Select the database and create required tables:
 
 ```sql
 CREATE TABLE IF NOT EXISTS wp_fc_shipping_method_restrictions (
@@ -175,7 +175,7 @@ VALUES
 
 ```
 
- ### 4.Build Assets (for Development):
+ ### 6.Build Assets (for Development):
 
   - Navigate to the plugin's resources/ directory (assuming Vue source there).
   - Run:
