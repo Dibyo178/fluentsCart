@@ -17,9 +17,7 @@ Restrictions are enforced on both the **frontend** (real-time UI feedback) and *
 
 The admin panel is powered by **Vue.js + Inertia.js**, providing a clean and modern user experience similar to Laravel applications.
 
-## 🔗 Project Resources
 
-- 🌐 **Live Demo:** [fluentcart.sourovdev.space](https://fluentcart.sourovdev.space/)
 
 
 
