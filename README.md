@@ -71,7 +71,7 @@ The admin panel features a clean, professional layout including:
 3. **Install Dependencies:**
    bash```
    composer install
-   ```
+  
 5. **Validation:** If the selection violates the rules, the checkout button is locked, and the reason is displayed to the user.
 6. **Final Log:** The validation status is recorded in the order metadata upon attempt.
 
