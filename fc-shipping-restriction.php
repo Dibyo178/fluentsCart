@@ -8,15 +8,41 @@ namespace FC\Shipping;
 
 if (!defined('ABSPATH')) exit;
 
+
+if (file_exists(plugin_dir_path(__FILE__) . 'vendor/autoload.php')) {
+    require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
+}
+
 require_once plugin_dir_path(__FILE__) . 'app/Services/InertiaBridge.php';
 require_once plugin_dir_path(__FILE__) . 'app/Http/Controllers/ShippingController.php';
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use App\Http\Controllers\ShippingController;
+use App\Models\ShippingTask;
+
+/**
+ * 2. Database Connection setup with WordPress Prefix
+ * Eita Model-er age thaka joruri jate table 'wp_' diye khuje pay
+ */
+$capsule = new Capsule;
+$capsule->addConnection([
+    'driver'    => 'mysql',
+    'host'      => $_ENV['DB_HOST'] ?? '127.0.0.1',
+    'database'  => $_ENV['DB_DATABASE'] ?? 'wp-fluentcart',
+    'username'  => $_ENV['DB_USERNAME'] ?? 'root',
+    'password'  => $_ENV['DB_PASSWORD'] ?? '',
+    'charset'   => 'utf8mb4',
+    'collation' => 'utf8mb4_unicode_ci',
+    'prefix'    => $GLOBALS['wpdb']->prefix, // EIKHANE PREFIX BOSHECHE (wp_)
+]);
+
+$capsule->setAsGlobal();
+$capsule->bootEloquent();
 
 class Plugin
 {
 
-  private $is_dev_mode =false;
+  private $is_dev_mode =true;
     public function __construct()
     {
         add_action('admin_menu', [$this, 'add_menu'], 100);
@@ -31,33 +57,19 @@ class Plugin
         add_action('wp_footer', [$this, 'inject_checkout_logic'], 999);
     }
 
-    private function get_active_rules() {
-        global $wpdb;
-        $mode = get_option('fc_restriction_mode', 'global');
+  private function get_active_rules() {
+    $mode = get_option('fc_restriction_mode', 'global');
+    $method_id = ($mode === 'global' || empty($mode)) ? 0 : (int)$mode;
 
-        if ($mode === 'global' || empty($mode)) {
-            $method_id = 0;
-        } else {
-            $method_id = (int)$mode;
-        }
+    // $wpdb er poriborte Eloquent Model use korun
+    $row = ShippingTask::where('method_id', $method_id)->first();
 
-        $table = $wpdb->prefix . 'fc_shipping_method_restrictions';
-        $row = $wpdb->get_row($wpdb->prepare(
-            "SELECT allowed_countries, excluded_countries
-             FROM $table
-             WHERE method_id = %d",
-            $method_id
-        ));
-
-        $allowed  = $row ? json_decode($row->allowed_countries, true) ?: [] : [];
-        $excluded = $row ? json_decode($row->excluded_countries, true) ?: [] : [];
-
-        return [
-            'mode'     => $mode,
-            'allowed'  => $allowed,
-            'excluded' => $excluded
-        ];
-    }
+    return [
+        'mode'     => $mode,
+        'allowed'  => $row ? $row->allowed_countries : [], // Automatic array hobe casting er karone
+        'excluded' => $row ? $row->excluded_countries : []
+    ];
+}
 
     public function add_menu() {
         add_submenu_page(
@@ -140,7 +152,6 @@ class Plugin
         ]);
     }
 public function handle_ajax_save() {
-    global $wpdb;
     check_ajax_referer('fc_shipping_nonce', 'nonce');
 
     $mode = sanitize_text_field($_POST['mode'] ?? 'global');
@@ -148,31 +159,24 @@ public function handle_ajax_save() {
     $excluded = json_decode(stripslashes($_POST['excluded'] ?? '[]'), true);
 
     $method_id = ($mode === 'global') ? 0 : (int)$mode;
-    $table = $wpdb->prefix . 'fc_shipping_method_restrictions';
 
-    // Save restrictions
-    $exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM $table WHERE method_id = %d", $method_id));
-    $data = [
-        'method_id'         => $method_id,
-        'allowed_countries' => wp_json_encode($allowed),
-        'excluded_countries'=> wp_json_encode($excluded),
-        'updated_at'        => current_time('mysql')
-    ];
+    // Eloquent: Save ba Update kora (One-liner!)
+    ShippingTask::updateOrCreate(
+        ['method_id' => $method_id],
+        [
+            'allowed_countries'  => $allowed,
+            'excluded_countries' => $excluded
+        ]
+    );
 
-    if ($exists) {
-        $wpdb->update($table, $data, ['id' => $exists]);
-    } else {
-        $data['created_at'] = current_time('mysql');
-        $wpdb->insert($table, $data);
-    }
-
-    // Method table update (is_enabled logic)
+    // FluentCart methods table update (is_enabled logic)
+    global $wpdb;
     $methods_table = $wpdb->prefix . 'fct_shipping_methods';
     if ($mode === 'global') {
         $wpdb->query("UPDATE $methods_table SET is_enabled = 1");
     } else {
-        $wpdb->query("UPDATE $methods_table SET is_enabled = 0"); // সব বন্ধ
-        $wpdb->update($methods_table, ['is_enabled' => 1], ['id' => (int)$mode]); // শুধু নির্দিষ্টটি চালু
+        $wpdb->query("UPDATE $methods_table SET is_enabled = 0");
+        $wpdb->update($methods_table, ['is_enabled' => 1], ['id' => $method_id]);
     }
 
     update_option('fc_restriction_mode', $mode);
@@ -180,20 +184,16 @@ public function handle_ajax_save() {
 }
 
 public function handle_ajax_get_settings() {
-    global $wpdb;
     $mode = sanitize_text_field($_GET['mode'] ?? 'global');
-    $search_id = ($mode === 'global') ? 0 : (int)$mode;
+    $search_id = ($mode === 'global') ? 0 : (int)$search_id = (int)$mode;
 
-    $table = $wpdb->prefix . 'fc_shipping_method_restrictions';
-    $row = $wpdb->get_row($wpdb->prepare(
-        "SELECT allowed_countries, excluded_countries FROM $table WHERE method_id = %d",
-        $search_id
-    ), ARRAY_A);
+    // Eloquent Model call
+    $row = ShippingTask::where('method_id', $search_id)->first();
 
     wp_send_json_success([
         'data' => [
-            'allowed'  => $row ? json_decode($row['allowed_countries'], true) : [],
-            'excluded' => $row ? json_decode($row['excluded_countries'], true) : []
+            'allowed'  => $row ? $row->allowed_countries : [], // Model automatic array convert korbe
+            'excluded' => $row ? $row->excluded_countries : []
         ]
     ]);
 }
