@@ -8,10 +8,7 @@
 
 ## 🔗 Project Resources
 
-- 🌐 **Live Demo:** [fluentcart.sourovdev.space](https://fluentcart.sourovdev.space/)
--  **Full Project zip:** [project-zip](https://drive.google.com/file/d/1GolRzIE5XvsJfPb2z1FqvQXtnb6gYAyP/view?usp=sharing)
--  **Sql File:** [sql](https://drive.google.com/file/d/1MODQeXnEVUW_aQgRoDcaAREL5PDj_1E3/view?usp=sharing)
-- 📦 **Tech Stack:** PHP, MySQL, Vue.js 3, Tailwind CSS, Axios, FluentCart Hooks.
+- 📦 **Tech Stack:** PHP,Laravel,Inertia js, MySQL, Vue.js 3, Tailwind CSS, Axios, FluentCart Hooks.
 
 ---
 
@@ -49,9 +46,9 @@
 
 | Component | Technology Used |
 | :--- | :--- |
-| **Backend** | PHP (WordPress Plugin API) |
+| **Backend** | Larvakle, PHP (WordPress Plugin API) |
 | **Database** | MySQL (WPDB Custom Meta) |
-| **Frontend UI** | Vue.js 3 (Composition-ready) |
+| **Frontend UI** | Vue.js 3 , iNERTIA JS |
 | **Styling** | Tailwind CSS 3.0 |
 | **Interactions** | Axios & SweetAlert2 |
 | **UI Components** | Dashicons & Custom SVGs |
@@ -64,6 +61,19 @@ The admin panel features a clean, professional layout including:
 - **System Mode Selector:** Switch between Global and specific Shipping Method modes.
 - **Interactive Country Tags:** Add or remove country ISO codes using a sleek chip-based interface.
 - **Real-time Status Logs:** A dedicated section to track order validation history at a glance.
+
+---
+
+## 🛠 Project Installation Guide
+
+1. **Prerequisites:** WordPress 6.0+ installed, Composer installed on your machine,PHP 8.1+.
+2. **Installation Steps:** Clone/Upload: Place the plugin folder into /wp-content/plugins/.
+3. **Install Dependencies:**
+   bash```
+   composer install
+   ```
+5. **Validation:** If the selection violates the rules, the checkout button is locked, and the reason is displayed to the user.
+6. **Final Log:** The validation status is recorded in the order metadata upon attempt.
 
 ---
 
