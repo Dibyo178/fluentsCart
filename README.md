@@ -40,14 +40,12 @@
 3. **Install Dependencies:**
   ``` bash
    composer install
-
 ```
 
 
 5. **Database Setup:** Migration setup 
    ``` bash
    php artisan migrate
-
 ```
 ```
  Then, check the database table and create the table  wp_fc_shipping_method_restrictions.
@@ -55,16 +53,13 @@
 1.
 ``` bash
   npm install
-
 ---
+```
 
-2. ```
-
-``` bash
+2.
+   ``` bash
   npm run dev
-
----
-
+```
  ```
 
 ## 🛠 Tech Stack Details
