@@ -33,14 +33,32 @@
 
 ---
 
-## 🚀 Installation & Setup
+##🚀 Installation & Setup
 
-1. Ensure the **FluentCart** core plugin is installed and activated on your WordPress site.
-2. Upload the `fluentcart-shipping-restriction` folder to the `/wp-content/plugins/` directory.
-3. Activate the plugin through the **'Plugins'** menu in WordPress.
-4. Navigate to **FC Shipping** in the sidebar to configure your shipping zones.
+1. **Prerequisites:** WordPress 6.0+ installed, Composer installed on your machine,PHP 8.1+,Laravel 12.48.1.
+2. **Installation Steps:** Clone/Upload: Place the plugin folder into /wp-content/plugins/.
+3. **Install Dependencies:**
+  ``` bash
+   composer install
+
+```
+
+
+5. **Database Setup:** Migration setup 
+   ``` bash
+   php artisan migrate
+
+```
+```
+ Then, check the database table and create the table  wp_fc_shipping_method_restrictions.
+6. **Activation:** Activate the plugin from the WordPress "Plugins" menu. and then frontend run by terminal
+
+``` bash
+  npm run dev
 
 ---
+
+ ```
 
 ## 🛠 Tech Stack Details
 
@@ -62,20 +80,7 @@ The admin panel features a clean, professional layout including:
 - **Interactive Country Tags:** Add or remove country ISO codes using a sleek chip-based interface.
 - **Real-time Status Logs:** A dedicated section to track order validation history at a glance.
 
----
 
-## 🛠 Project Installation Guide
-
-1. **Prerequisites:** WordPress 6.0+ installed, Composer installed on your machine,PHP 8.1+.
-2. **Installation Steps:** Clone/Upload: Place the plugin folder into /wp-content/plugins/.
-3. **Install Dependencies:**
-   bash
-   composer install
-  
-5. **Validation:** If the selection violates the rules, the checkout button is locked, and the reason is displayed to the user.
-6. **Final Log:** The validation status is recorded in the order metadata upon attempt.
-
----
 
 ## ✅ Key Logic Flow
 
