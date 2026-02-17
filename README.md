@@ -1,59 +1,88 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+![Shipping Icon](https://sourovdev.space/logo-full.svg) 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# FluentCart Shipping Restriction
 
-## About Laravel
+**FluentCart Shipping Restriction** is a powerful WordPress plugin that gives store owners control over shipping destinations. Built with a modern **Vue.js 3** and **Tailwind CSS** admin interface, it offers real-time checkout validation to prevent unauthorized orders from restricted regions.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🔗 Project Resources
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 🌐 **Live Demo:** [fluentcart.sourovdev.space](https://fluentcart.sourovdev.space/)
+-  **Full Project zip:** [project-zip](https://drive.google.com/file/d/1GolRzIE5XvsJfPb2z1FqvQXtnb6gYAyP/view?usp=sharing)
+-  **Sql File:** [sql](https://drive.google.com/file/d/1MODQeXnEVUW_aQgRoDcaAREL5PDj_1E3/view?usp=sharing)
+- 📦 **Tech Stack:** PHP, MySQL, Vue.js 3, Tailwind CSS, Axios, FluentCart Hooks.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## ✨ Core Features
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🌍 Universal Shipping Restrictions
+- **Allowed List:** Restrict shipping only to specific countries (Whitelist).
+- **Excluded List:** Block specific countries even if global shipping is enabled (Blacklist).
+- **Conflict Management:** Built-in logic to prevent adding the same country to both lists simultaneously.
 
-## Laravel Sponsors
+### 🛠 Dynamic System Modes
+- **Global Mode:** Apply shipping rules across all available shipping methods.
+- **Per Method Restriction:** Select a specific shipping method from the dropdown to apply rules exclusively to that method.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### ⚡ Real-time Checkout Validation
+- **Live Detection:** Monitors the country selection field on the checkout page instantly.
+- **Smart Prevention:** Automatically disables the **"Place Order"** button and displays a high-visibility warning message if a restricted country is selected.
 
-### Premium Partners
+### 📊 Order Metadata & Logging
+- **Detailed Insights:** Every order captures the country and validation status (Passed/Flagged) in the metadata.
+- **Admin Logs:** View the last 10 restriction activities directly from the plugin dashboard to monitor blocked attempts.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🚀 Installation & Setup
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Ensure the **FluentCart** core plugin is installed and activated on your WordPress site.
+2. Upload the `fluentcart-shipping-restriction` folder to the `/wp-content/plugins/` directory.
+3. Activate the plugin through the **'Plugins'** menu in WordPress.
+4. Navigate to **FC Shipping** in the sidebar to configure your shipping zones.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🛠 Tech Stack Details
 
-## Security Vulnerabilities
+| Component | Technology Used |
+| :--- | :--- |
+| **Backend** | PHP (WordPress Plugin API) |
+| **Database** | MySQL (WPDB Custom Meta) |
+| **Frontend UI** | Vue.js 3 (Composition-ready) |
+| **Styling** | Tailwind CSS 3.0 |
+| **Interactions** | Axios & SweetAlert2 |
+| **UI Components** | Dashicons & Custom SVGs |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## Admin Dashboard Preview
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The admin panel features a clean, professional layout including:
+- **System Mode Selector:** Switch between Global and specific Shipping Method modes.
+- **Interactive Country Tags:** Add or remove country ISO codes using a sleek chip-based interface.
+- **Real-time Status Logs:** A dedicated section to track order validation history at a glance.
+
+---
+
+## ✅ Key Logic Flow
+
+1. **Input:** The admin enters a country ISO code (e.g., US, UK, BD).
+2. **Priority:** The system prioritizes the **Excluded** list over the **Allowed** list for maximum security.
+3. **Frontend Hook:** A JavaScript observer monitors the checkout form.
+4. **Validation:** If the selection violates the rules, the checkout button is locked, and the reason is displayed to the user.
+5. **Final Log:** The validation status is recorded in the order metadata upon attempt.
+
+---
+
+## 👨‍💻 Author
+
+**Sourov Purkayastha**
+🌐 [sourovdev.space](https://sourovdev.space/)
+
+
+
+
+
