@@ -2,69 +2,53 @@
 namespace App\Http\Controllers;
 
 use FC\Shipping\Services\InertiaBridge;
-use App\Models\ShippingTask; // Model import
-use Illuminate\Database\Capsule\Manager as Capsule; // FluentCart core table-er jonno logic
+use App\Models\ShippingTask;
+use App\Models\OrderMeta;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class ShippingController {
 
     public function index() {
-        global $wpdb;
+        // 1.. Shipping Methods
+        $shipping_methods = Capsule::table('fct_shipping_methods')->select('id', 'title')->get()->toArray();
 
-        // 1. Fetch all shipping methods (FluentCart core table)
-        $shipping_methods = $wpdb->get_results("SELECT id, title FROM {$wpdb->prefix}fct_shipping_methods");
-
-        // 2. Get current mode/method ID
+        // 2. Current Mode fetch
         $current_mode = get_option('fc_restriction_mode', 'global');
         $search_id = ($current_mode === 'global') ? 0 : (int)$current_mode;
 
-        /**
-         * Logic: Eloquent Model (ShippingTask) use kore data fetch
-         * Array casting automatic hobe model settings er karone
-         */
+        // ShippingTask Model use
         $restriction = ShippingTask::where('method_id', $search_id)->first();
 
-        $allowed = $restriction ? $restriction->allowed_countries : [];
-        $excluded = $restriction ? $restriction->excluded_countries : [];
+        // 3. Order Logs (OrderMeta Model use)
+        $raw_logs = OrderMeta::where('meta_key', '_fc_shipping_restrictions')
+            ->orderBy('created_at', 'DESC')
+            ->limit(50)
+            ->get();
 
-        // 3. Log data fetch using $wpdb (Jehetu OrderMeta-r Eloquent model nei)
-        $table_meta = "{$wpdb->prefix}fct_order_meta";
-        $raw_logs = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT order_id, meta_value, created_at FROM $table_meta
-                WHERE meta_key = %s
-                ORDER BY created_at DESC LIMIT 50",
-                '_fc_shipping_restrictions'
-            )
-        );
-
-        $formatted_logs = [];
-        $methods_table = "{$wpdb->prefix}fct_shipping_methods";
-
-        foreach($raw_logs as $log) {
-            $meta = json_decode($log->meta_value, true);
+        // Collection map data format
+        $formatted_logs = $raw_logs->map(function($log) use ($shipping_methods) {
+            $meta = $log->meta_value;
             $mode = $meta['mode'] ?? 'global';
             $method_name = 'Global';
 
             if ($mode !== 'global' && is_numeric($mode)) {
-                $method_name = $wpdb->get_var($wpdb->prepare(
-                    "SELECT title FROM $methods_table WHERE id = %d",
-                    (int)$mode
-                )) ?: 'Unknown Method';
+                //find array
+                $method = array_filter($shipping_methods, fn($m) => $m->id == $mode);
+                $method_name = !empty($method) ? reset($method)->title : 'Unknown Method';
             }
 
-            $formatted_logs[] = [
+            return [
                 'id'       => $log->order_id,
                 'method'   => $method_name,
                 'allowed'  => !empty($meta['allowed_countries']) ? implode(', ', (array)$meta['allowed_countries']) : 'All Countries',
                 'excluded' => !empty($meta['excluded_countries']) ? implode(', ', (array)$meta['excluded_countries']) : 'None',
                 'date'     => $log->created_at
             ];
-        }
+        });
 
-        // Render via Inertia
         return InertiaBridge::render('Shipping/Restrictions', [
-            'allowed'         => (array) $allowed,
-            'excluded'        => (array) $excluded,
+            'allowed'         => $restriction ? $restriction->allowed_countries : [],
+            'excluded'        => $restriction ? $restriction->excluded_countries : [],
             'mode'            => $current_mode,
             'shippingMethods' => $shipping_methods,
             'logs'            => $formatted_logs,
