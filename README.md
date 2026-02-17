@@ -52,6 +52,13 @@
 ```
  Then, check the database table and create the table  wp_fc_shipping_method_restrictions.
 6. **Activation:** Activate the plugin from the WordPress "Plugins" menu. and then frontend run by terminal
+1.
+``` bash
+  npm install
+
+---
+
+2. ```
 
 ``` bash
   npm run dev
