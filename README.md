@@ -69,7 +69,7 @@ The admin panel features a clean, professional layout including:
 1. **Prerequisites:** WordPress 6.0+ installed, Composer installed on your machine,PHP 8.1+.
 2. **Installation Steps:** Clone/Upload: Place the plugin folder into /wp-content/plugins/.
 3. **Install Dependencies:**
-   bash```
+   bash
    composer install
   
 5. **Validation:** If the selection violates the rules, the checkout button is locked, and the reason is displayed to the user.
