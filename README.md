@@ -31,6 +31,10 @@ To initialize the plugin's custom tables, please use the provided SQL schema. Yo
 1. Open your **phpMyAdmin** or preferred SQL client.
 2. Create a new database or select your existing WordPress database.
 3. Import the `sql` file to create the `wp_fc_shipping_method_restrictions` and other necessary tables.
+
+### 🔗 Menu Integration
+The plugin seamlessly integrates into the **FluentCart Sidebar** using the WordPress `admin_menu` hook, targeting the `fluent-cart` parent slug for a unified admin experience.
+
 ### 🛠 Dynamic System Modes
 
 - **Global Mode:** Apply shipping rules across all available shipping methods.
