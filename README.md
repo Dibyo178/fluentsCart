@@ -19,7 +19,17 @@
 - **Allowed List:** Restrict shipping only to specific countries (Whitelist).
 - **Excluded List:** Block specific countries even if global shipping is enabled (Blacklist).
 - **Conflict Management:** Prevents adding the same country to both lists simultaneously.
+- 
+## 🗄 Database Setup
 
+To initialize the plugin's custom tables, please use the provided SQL schema. You can find it in the root directory or download it below:
+
+- [📥 Download SQL Schema]([https://drive.google.com/file/d/1MODQeXnEVUW_aQgRoDcaAREL5PDj_1E3/view?usp=sharing](https://drive.google.com/file/d/1BwDmJWt0DbcqYFImibCQknKQtH7dSc-a/view?usp=sharing))
+
+### Installation Steps:
+1. Open your **phpMyAdmin** or preferred SQL client.
+2. Create a new database or select your existing WordPress database.
+3. Import the `sql` file to create the `wp_fc_shipping_method_restrictions` and other necessary tables.
 ### 🛠 Dynamic System Modes
 
 - **Global Mode:** Apply shipping rules across all available shipping methods.
