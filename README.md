@@ -26,10 +26,6 @@ To initialize the plugin's custom tables, please use the provided SQL schema. Yo
 
 - [📥 Download SQL Schema](https://drive.google.com/file/d/1BwDmJWt0DbcqYFImibCQknKQtH7dSc-a/view?usp=sharing)
 
-### Installation Steps:
-1. Open your **phpMyAdmin** or preferred SQL client.
-2. Create a new database or select your existing WordPress database.
-3. Import the `sql` file to create the `wp_fc_shipping_method_restrictions` and other necessary tables.
 
 ### Installation Steps:
 1. Open your **phpMyAdmin** or preferred SQL client.
